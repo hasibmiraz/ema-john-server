@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { MongoClient, ServerApiVersion } from 'mongodb';
+import { MongoClient, ObjectId, ServerApiVersion } from 'mongodb';
 import 'dotenv/config';
 
 const app = express();
@@ -24,17 +24,36 @@ const run = async () => {
     const productsCollection = client.db('emaJohn').collection('products');
 
     app.get('/products', async (req, res) => {
+      const page = parseInt(req.query.page);
+      const size = parseInt(req.query.size);
       const query = {};
       const cursor = productsCollection.find(query);
-      const products = await cursor.toArray();
+      let products;
+      if (page || size) {
+        products = await cursor
+          .skip(page * size)
+          .limit(size)
+          .toArray();
+      } else {
+        products = await cursor.toArray();
+      }
       res.send(products);
     });
 
+    // get product count
     app.get('/productsCount', async (req, res) => {
-      const query = {};
-      const cursor = productsCollection.find(query);
-      const count = await cursor.count();
+      const count = await productsCollection.countDocuments();
       res.send({ count });
+    });
+
+    // use post to get product by ids
+    app.post('/productByKeys', async (req, res) => {
+      const keys = req.body;
+      const ids = keys.map((id) => ObjectId(id));
+      const query = { _id: { $in: ids } };
+      const cursor = productsCollection.find(query);
+      const products = await cursor.toArray();
+      res.send(products);
     });
   } finally {
   }
