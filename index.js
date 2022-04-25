@@ -23,6 +23,10 @@ const run = async () => {
 
     const productsCollection = client.db('emaJohn').collection('products');
 
+    app.get('/', async (req, res) => {
+      res.send('Ema john working');
+    });
+
     app.get('/products', async (req, res) => {
       const page = parseInt(req.query.page);
       const size = parseInt(req.query.size);
