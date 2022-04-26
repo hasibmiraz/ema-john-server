@@ -7,7 +7,15 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors({ origin: '*' }));
+// app.use(cors({ origin: '*' }));
+// app.use(cors());
+const corsConfig = {
+  origin: true,
+  credentials: true,
+};
+app.use(cors(corsConfig));
+app.options('*', cors(corsConfig));
+
 app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@ema-john-db.mhzvr.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
